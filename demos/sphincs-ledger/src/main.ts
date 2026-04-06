@@ -31,24 +31,55 @@ function recordSpeed(paramSet: string, ms: number) {
 }
 
 // ─── Tab switching ───
-document.querySelectorAll<HTMLButtonElement>('.tab').forEach((btn) => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.tab').forEach((t) => {
-      t.classList.remove('active');
-      t.setAttribute('aria-selected', 'false');
-    });
-    document.querySelectorAll('.tab-panel').forEach((p) => {
-      p.classList.remove('active');
-      p.classList.add('hidden');
-    });
-    btn.classList.add('active');
-    btn.setAttribute('aria-selected', 'true');
-    const panel = document.getElementById(`tab-${btn.dataset.tab}`);
-    if (panel) {
-      panel.classList.add('active');
-      panel.classList.remove('hidden');
-    }
+const allTabs = Array.from(document.querySelectorAll<HTMLButtonElement>('.tab'));
+
+function activateTab(btn: HTMLButtonElement) {
+  allTabs.forEach((t) => {
+    t.classList.remove('active');
+    t.setAttribute('aria-selected', 'false');
+    t.setAttribute('tabindex', '-1');
   });
+  document.querySelectorAll('.tab-panel').forEach((p) => {
+    p.classList.remove('active');
+    p.classList.add('hidden');
+  });
+  btn.classList.add('active');
+  btn.setAttribute('aria-selected', 'true');
+  btn.setAttribute('tabindex', '0');
+  btn.focus();
+  const panel = document.getElementById(`tab-${btn.dataset.tab}`);
+  if (panel) {
+    panel.classList.add('active');
+    panel.classList.remove('hidden');
+  }
+}
+
+allTabs.forEach((btn) => btn.addEventListener('click', () => activateTab(btn)));
+
+// Keyboard arrow navigation for tablist (WCAG)
+document.querySelector('.tabs')?.addEventListener('keydown', (e) => {
+  const ev = e as KeyboardEvent;
+  const idx = allTabs.indexOf(document.activeElement as HTMLButtonElement);
+  if (idx === -1) return;
+  let next = -1;
+  if (ev.key === 'ArrowRight' || ev.key === 'ArrowDown') {
+    next = (idx + 1) % allTabs.length;
+  } else if (ev.key === 'ArrowLeft' || ev.key === 'ArrowUp') {
+    next = (idx - 1 + allTabs.length) % allTabs.length;
+  } else if (ev.key === 'Home') {
+    next = 0;
+  } else if (ev.key === 'End') {
+    next = allTabs.length - 1;
+  }
+  if (next >= 0) {
+    ev.preventDefault();
+    activateTab(allTabs[next]);
+  }
+});
+
+// Set initial tabindex state
+allTabs.forEach((btn) => {
+  btn.setAttribute('tabindex', btn.classList.contains('active') ? '0' : '-1');
 });
 
 // ─── TAB 1: Sign & Verify ───
@@ -402,7 +433,7 @@ document.getElementById('security-content')!.innerHTML = `
 
   <div class="security-section">
     <h3>Quantum Impact</h3>
-    <table>
+    <div class="table-wrap"><table>
       <thead>
         <tr><th>Scheme</th><th>Assumption</th><th>Quantum Attack</th><th>Status</th></tr>
       </thead>
@@ -412,7 +443,7 @@ document.getElementById('security-content')!.innerHTML = `
         <tr><td>ML-DSA (Dilithium)</td><td>Module-LWE (lattice)</td><td>No known efficient attack</td><td style="color:#86efac">Survives</td></tr>
         <tr><td>SLH-DSA (SPHINCS+)</td><td>Hash function only</td><td>Grover reduces to 128-bit</td><td style="color:#86efac">Survives</td></tr>
       </tbody>
-    </table>
+    </table></div>
   </div>
 
   <div class="security-section">
@@ -424,7 +455,7 @@ document.getElementById('security-content')!.innerHTML = `
 
   <div class="security-section">
     <h3>Assumption Maturity</h3>
-    <table>
+    <div class="table-wrap"><table>
       <thead>
         <tr><th>Assumption</th><th>Years Studied</th><th>Used By</th></tr>
       </thead>
@@ -434,12 +465,12 @@ document.getElementById('security-content')!.innerHTML = `
         <tr><td>SHA-256 (hash functions)</td><td>~25 years</td><td>SLH-DSA (SPHINCS+)</td></tr>
         <tr><td>LWE (lattices)</td><td>~20 years</td><td>ML-DSA (Dilithium), ML-KEM</td></tr>
       </tbody>
-    </table>
+    </table></div>
   </div>
 
   <div class="security-section">
     <h3>When to Use SPHINCS+</h3>
-    <table>
+    <div class="table-wrap"><table>
       <thead>
         <tr><th>Use Case</th><th>Recommended?</th><th>Rationale</th></tr>
       </thead>
@@ -450,13 +481,13 @@ document.getElementById('security-content')!.innerHTML = `
         <tr><td>High-frequency TLS handshakes</td><td style="color:#fca5a5">No</td><td>Large signatures (7–50 KB) add latency; ML-DSA preferred</td></tr>
         <tr><td>Bandwidth-constrained IoT</td><td style="color:#fca5a5">No</td><td>Signature sizes too large for constrained links</td></tr>
       </tbody>
-    </table>
+    </table></div>
   </div>
 `;
 
 // ─── TAB 6: Comparison ───
 document.getElementById('compare-content')!.innerHTML = `
-  <table>
+  <div class="table-wrap"><table>
     <thead>
       <tr>
         <th>Scheme</th>
@@ -475,7 +506,7 @@ document.getElementById('compare-content')!.innerHTML = `
       <tr><td>SLH-DSA-256s</td><td>64 B</td><td>29,792 B</td><td style="color:#86efac">Yes</td><td>Hash only</td></tr>
       <tr><td>SLH-DSA-256f</td><td>64 B</td><td>49,856 B</td><td style="color:#86efac">Yes</td><td>Hash only</td></tr>
     </tbody>
-  </table>
+  </table></div>
 `;
 
 // ─── Speed chart ───

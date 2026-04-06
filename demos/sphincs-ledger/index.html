@@ -3,160 +3,170 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Interactive browser demo of SLH-DSA (SPHINCS+) hash-based digital signatures — NIST FIPS 205. Explore Merkle trees, WOTS+ chains, and post-quantum signing." />
+    <meta name="theme-color" content="#0f0f17" />
     <title>SLH-DSA (SPHINCS+) — NIST FIPS 205 Demo</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔏</text></svg>">
   </head>
   <body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
     <div id="app">
-      <header>
+      <header role="banner">
         <h1>SLH-DSA (SPHINCS+)</h1>
         <p class="subtitle">NIST FIPS 205 — Hash-Based Digital Signatures</p>
         <p class="tagline">Security reduces entirely to SHA-256 collision resistance. No algebraic assumptions.</p>
       </header>
 
-      <nav class="tabs" role="tablist">
-        <button class="tab active" data-tab="sign" role="tab" aria-selected="true">Sign &amp; Verify</button>
-        <button class="tab" data-tab="tree" role="tab">Hash Tree</button>
-        <button class="tab" data-tab="wots" role="tab">WOTS+ Chains</button>
-        <button class="tab" data-tab="ledger" role="tab">Ledger</button>
-        <button class="tab" data-tab="security" role="tab">Security Basis</button>
-        <button class="tab" data-tab="compare" role="tab">vs RSA / Dilithium</button>
+      <nav class="tabs" role="tablist" aria-label="Demo sections">
+        <button class="tab active" data-tab="sign" role="tab" id="tab-btn-sign" aria-selected="true" aria-controls="tab-sign">Sign &amp; Verify</button>
+        <button class="tab" data-tab="tree" role="tab" id="tab-btn-tree" aria-selected="false" aria-controls="tab-tree">Hash Tree</button>
+        <button class="tab" data-tab="wots" role="tab" id="tab-btn-wots" aria-selected="false" aria-controls="tab-wots">WOTS+ Chains</button>
+        <button class="tab" data-tab="ledger" role="tab" id="tab-btn-ledger" aria-selected="false" aria-controls="tab-ledger">Ledger</button>
+        <button class="tab" data-tab="security" role="tab" id="tab-btn-security" aria-selected="false" aria-controls="tab-security">Security Basis</button>
+        <button class="tab" data-tab="compare" role="tab" id="tab-btn-compare" aria-selected="false" aria-controls="tab-compare">vs RSA / Dilithium</button>
       </nav>
 
-      <!-- Tab 1: Sign & Verify -->
-      <section id="tab-sign" class="tab-panel active">
-        <div class="panel-row">
-          <div class="panel card">
-            <h2>Generate &amp; Sign</h2>
-            <label for="param-select">Parameter set:</label>
-            <select id="param-select">
-              <option value="sha2-128f" selected>SLH-DSA-SHA2-128f (fast, 128-bit)</option>
-              <option value="sha2-128s">SLH-DSA-SHA2-128s (small, 128-bit)</option>
-              <option value="sha2-256f">SLH-DSA-SHA2-256f (fast, 256-bit)</option>
-              <option value="sha2-256s">SLH-DSA-SHA2-256s (small, 256-bit)</option>
-            </select>
+      <main id="main-content">
+        <!-- Tab 1: Sign & Verify -->
+        <section id="tab-sign" class="tab-panel active" role="tabpanel" aria-labelledby="tab-btn-sign">
+          <div class="panel-row">
+            <div class="panel card">
+              <h2>Generate &amp; Sign</h2>
+              <label for="param-select">Parameter set:</label>
+              <select id="param-select" aria-describedby="param-info">
+                <option value="sha2-128f" selected>SLH-DSA-SHA2-128f (fast, 128-bit)</option>
+                <option value="sha2-128s">SLH-DSA-SHA2-128s (small, 128-bit)</option>
+                <option value="sha2-256f">SLH-DSA-SHA2-256f (fast, 256-bit)</option>
+                <option value="sha2-256s">SLH-DSA-SHA2-256s (small, 256-bit)</option>
+              </select>
 
-            <div id="param-info" class="info-card"></div>
+              <div id="param-info" class="info-card" role="status" aria-label="Parameter set details"></div>
 
-            <label for="message-input">Message to sign:</label>
-            <textarea id="message-input" rows="3" placeholder="Enter a message to sign...">Hello, post-quantum world!</textarea>
+              <label for="message-input">Message to sign:</label>
+              <textarea id="message-input" rows="3" placeholder="Enter a message to sign..." aria-label="Message text to sign">Hello, post-quantum world!</textarea>
 
-            <button id="btn-generate" class="btn-primary">Generate Keypair &amp; Sign</button>
-            <div id="sign-spinner" class="spinner hidden">
-              <div class="spinner-dot"></div>
-              <span>Signing — this is expected for conservative parameter sets...</span>
+              <button id="btn-generate" class="btn-primary" aria-label="Generate a new keypair and sign the message">Generate Keypair &amp; Sign</button>
+              <div id="sign-spinner" class="spinner hidden" role="status" aria-live="polite">
+                <div class="spinner-dot" aria-hidden="true"></div>
+                <span>Signing — this is expected for conservative parameter sets...</span>
+              </div>
+              <div id="sign-output" class="output hidden" role="status" aria-live="polite" aria-label="Signing result"></div>
             </div>
-            <div id="sign-output" class="output hidden"></div>
-          </div>
 
-          <div class="panel card">
-            <h2>Verify</h2>
-            <p class="muted">After signing, verify the signature to confirm authenticity.</p>
-            <button id="btn-verify" class="btn-secondary" disabled>Verify Signature</button>
-            <div id="verify-output" class="output hidden"></div>
+            <div class="panel card">
+              <h2>Verify</h2>
+              <p class="muted">After signing, verify the signature to confirm authenticity.</p>
+              <button id="btn-verify" class="btn-secondary" disabled aria-label="Verify the current signature">Verify Signature</button>
+              <div id="verify-output" class="output hidden" role="status" aria-live="polite" aria-label="Verification result"></div>
 
-            <h3>Tamper Test</h3>
-            <p class="muted">Flip a single byte to see verification fail.</p>
-            <button id="btn-tamper-sig" class="btn-danger" disabled>Flip Byte in Signature</button>
-            <button id="btn-tamper-msg" class="btn-danger" disabled>Flip Byte in Message</button>
-            <div id="tamper-output" class="output hidden"></div>
+              <h3>Tamper Test</h3>
+              <p class="muted">Flip a single byte to see verification fail.</p>
+              <button id="btn-tamper-sig" class="btn-danger" disabled aria-label="Flip one byte in the signature and re-verify">Flip Byte in Signature</button>
+              <button id="btn-tamper-msg" class="btn-danger" disabled aria-label="Flip one byte in the message and re-verify">Flip Byte in Message</button>
+              <div id="tamper-output" class="output hidden" role="alert" aria-live="assertive" aria-label="Tamper test result"></div>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <!-- Tab 2: Hash Tree -->
-      <section id="tab-tree" class="tab-panel hidden">
-        <div class="card">
-          <h2>SHA-256 Merkle Tree</h2>
-          <p class="muted">A real SHA-256 Merkle tree computed in your browser. Click a leaf to highlight its authentication path.</p>
-          <div class="controls-row">
-            <label for="tree-leaves">Number of leaves:</label>
-            <select id="tree-leaves">
-              <option value="4">4 leaves (2 levels)</option>
-              <option value="8" selected>8 leaves (3 levels)</option>
-              <option value="16">16 leaves (4 levels)</option>
-            </select>
-            <button id="btn-build-tree" class="btn-primary">Build Tree</button>
+        <!-- Tab 2: Hash Tree -->
+        <section id="tab-tree" class="tab-panel hidden" role="tabpanel" aria-labelledby="tab-btn-tree">
+          <div class="card">
+            <h2>SHA-256 Merkle Tree</h2>
+            <p class="muted">A real SHA-256 Merkle tree computed in your browser. Select a leaf to highlight its authentication path.</p>
+            <div class="controls-row">
+              <label for="tree-leaves">Number of leaves:</label>
+              <select id="tree-leaves" aria-label="Select number of leaves for the Merkle tree">
+                <option value="4">4 leaves (2 levels)</option>
+                <option value="8" selected>8 leaves (3 levels)</option>
+                <option value="16">16 leaves (4 levels)</option>
+              </select>
+              <button id="btn-build-tree" class="btn-primary" aria-label="Build a new Merkle tree">Build Tree</button>
+            </div>
+            <div id="tree-container" role="img" aria-label="Merkle tree visualization"></div>
+            <div class="controls-row">
+              <label for="leaf-select">Select leaf to verify:</label>
+              <select id="leaf-select" aria-label="Select a leaf node to verify"></select>
+              <button id="btn-verify-leaf" class="btn-secondary" disabled aria-label="Verify the selected leaf's authentication path">Verify Leaf</button>
+            </div>
+            <div id="tree-verify-output" class="output hidden" role="status" aria-live="polite" aria-label="Leaf verification result"></div>
           </div>
-          <div id="tree-container"></div>
-          <div class="controls-row">
-            <label for="leaf-select">Select leaf to verify:</label>
-            <select id="leaf-select"></select>
-            <button id="btn-verify-leaf" class="btn-secondary" disabled>Verify Leaf</button>
-          </div>
-          <div id="tree-verify-output" class="output hidden"></div>
-        </div>
-      </section>
+        </section>
 
-      <!-- Tab 3: WOTS+ Chains -->
-      <section id="tab-wots" class="tab-panel hidden">
-        <div class="card">
-          <h2>WOTS+ One-Time Signature Chains</h2>
-          <p class="muted"><strong>Illustrative demonstration</strong> — shows the hash-chain concept underlying WOTS+ (FIPS 205, Section 4). Not a production implementation.</p>
-          <button id="btn-gen-wots" class="btn-primary">Generate WOTS+ Key (4 chains, w=16)</button>
-          <div id="wots-chains"></div>
-          <div class="controls-row" id="wots-sign-controls" style="display:none">
-            <label for="wots-nibble">Message nibble (0-15):</label>
-            <input id="wots-nibble" type="number" min="0" max="15" value="5" />
-            <label for="wots-chain-idx">Chain index:</label>
-            <input id="wots-chain-idx" type="number" min="0" max="3" value="0" />
-            <button id="btn-wots-sign" class="btn-secondary">Sign (reveal chain point)</button>
-            <button id="btn-wots-verify" class="btn-secondary" disabled>Verify</button>
+        <!-- Tab 3: WOTS+ Chains -->
+        <section id="tab-wots" class="tab-panel hidden" role="tabpanel" aria-labelledby="tab-btn-wots">
+          <div class="card">
+            <h2>WOTS+ One-Time Signature Chains</h2>
+            <p class="muted"><strong>Illustrative demonstration</strong> — shows the hash-chain concept underlying WOTS+ (FIPS 205, Section 4). Not a production implementation.</p>
+            <button id="btn-gen-wots" class="btn-primary" aria-label="Generate a new WOTS+ key with 4 hash chains">Generate WOTS+ Key (4 chains, w=16)</button>
+            <div id="wots-chains" role="img" aria-label="WOTS+ hash chain visualization"></div>
+            <fieldset class="controls-row" id="wots-sign-controls" style="display:none">
+              <legend class="sr-only">WOTS+ signing controls</legend>
+              <label for="wots-nibble">Message nibble (0-15):</label>
+              <input id="wots-nibble" type="number" min="0" max="15" value="5" aria-label="Message nibble value between 0 and 15" />
+              <label for="wots-chain-idx">Chain index:</label>
+              <input id="wots-chain-idx" type="number" min="0" max="3" value="0" aria-label="Chain index between 0 and 3" />
+              <button id="btn-wots-sign" class="btn-secondary" aria-label="Sign with WOTS+ and reveal a chain point">Sign (reveal chain point)</button>
+              <button id="btn-wots-verify" class="btn-secondary" disabled aria-label="Verify the WOTS+ signature">Verify</button>
+            </fieldset>
+            <div id="wots-reuse-warning" class="warning hidden" role="alert" aria-live="assertive"></div>
+            <div id="wots-output" class="output hidden" role="status" aria-live="polite" aria-label="WOTS+ operation result"></div>
           </div>
-          <div id="wots-reuse-warning" class="warning hidden"></div>
-          <div id="wots-output" class="output hidden"></div>
-        </div>
-      </section>
+        </section>
 
-      <!-- Tab 4: Ledger -->
-      <section id="tab-ledger" class="tab-panel hidden">
-        <div class="card">
-          <h2>Signed Ledger</h2>
-          <p class="muted">Append-only ledger of SPHINCS+ signed entries. Each entry uses a fresh keypair — no shared keys or PKI required.</p>
-          <div class="controls-row">
-            <input id="ledger-author" type="text" placeholder="Author name" value="Alice" />
-            <input id="ledger-message" type="text" placeholder="Ledger message" value="Transfer 10 tokens to Bob" style="flex:2" />
-            <select id="ledger-param">
-              <option value="sha2-128f" selected>128f</option>
-              <option value="sha2-128s">128s</option>
-              <option value="sha2-256f">256f</option>
-              <option value="sha2-256s">256s</option>
-            </select>
-            <button id="btn-ledger-add" class="btn-primary">Add Entry</button>
+        <!-- Tab 4: Ledger -->
+        <section id="tab-ledger" class="tab-panel hidden" role="tabpanel" aria-labelledby="tab-btn-ledger">
+          <div class="card">
+            <h2>Signed Ledger</h2>
+            <p class="muted">Append-only ledger of SPHINCS+ signed entries. Each entry uses a fresh keypair — no shared keys or PKI required.</p>
+            <fieldset class="controls-row">
+              <legend class="sr-only">Add a new ledger entry</legend>
+              <label for="ledger-author" class="sr-only">Author name</label>
+              <input id="ledger-author" type="text" placeholder="Author name" value="Alice" aria-label="Author name" />
+              <label for="ledger-message" class="sr-only">Ledger message</label>
+              <input id="ledger-message" type="text" placeholder="Ledger message" value="Transfer 10 tokens to Bob" style="flex:2" aria-label="Ledger message" />
+              <label for="ledger-param" class="sr-only">Parameter set</label>
+              <select id="ledger-param" aria-label="Signature parameter set">
+                <option value="sha2-128f" selected>128f</option>
+                <option value="sha2-128s">128s</option>
+                <option value="sha2-256f">256f</option>
+                <option value="sha2-256s">256s</option>
+              </select>
+              <button id="btn-ledger-add" class="btn-primary" aria-label="Add a new signed entry to the ledger">Add Entry</button>
+            </fieldset>
+            <div id="ledger-spinner" class="spinner hidden" role="status" aria-live="polite">
+              <div class="spinner-dot" aria-hidden="true"></div>
+              <span>Generating keypair and signing...</span>
+            </div>
+            <div class="controls-row" role="toolbar" aria-label="Ledger actions">
+              <button id="btn-ledger-verify" class="btn-secondary" aria-label="Verify all ledger entries">Verify All</button>
+              <button id="btn-ledger-tamper" class="btn-danger" disabled aria-label="Tamper with the latest ledger entry">Tamper Latest Entry</button>
+              <button id="btn-ledger-clear" class="btn-danger" aria-label="Clear all ledger entries">Clear Ledger</button>
+            </div>
+            <div id="ledger-tamper-explanation" class="warning hidden" role="alert" aria-live="assertive"></div>
+            <div id="ledger-entries" aria-label="Ledger entries list"></div>
           </div>
-          <div id="ledger-spinner" class="spinner hidden">
-            <div class="spinner-dot"></div>
-            <span>Generating keypair and signing...</span>
+        </section>
+
+        <!-- Tab 5: Security Basis -->
+        <section id="tab-security" class="tab-panel hidden" role="tabpanel" aria-labelledby="tab-btn-security">
+          <div class="card">
+            <h2>Security Basis: Hash-Only Assumption</h2>
+            <div id="security-content"></div>
           </div>
-          <div class="controls-row">
-            <button id="btn-ledger-verify" class="btn-secondary">Verify All</button>
-            <button id="btn-ledger-tamper" class="btn-danger" disabled>Tamper Latest Entry</button>
-            <button id="btn-ledger-clear" class="btn-danger">Clear Ledger</button>
+        </section>
+
+        <!-- Tab 6: Comparison -->
+        <section id="tab-compare" class="tab-panel hidden" role="tabpanel" aria-labelledby="tab-btn-compare">
+          <div class="card">
+            <h2>Signature Scheme Comparison</h2>
+            <div id="compare-content"></div>
+            <h3>Signing Speed (this session)</h3>
+            <div id="speed-chart" role="img" aria-label="Bar chart comparing signing speeds across parameter sets"></div>
           </div>
-          <div id="ledger-tamper-explanation" class="warning hidden"></div>
-          <div id="ledger-entries"></div>
-        </div>
-      </section>
+        </section>
+      </main>
 
-      <!-- Tab 5: Security Basis -->
-      <section id="tab-security" class="tab-panel hidden">
-        <div class="card">
-          <h2>Security Basis: Hash-Only Assumption</h2>
-          <div id="security-content"></div>
-        </div>
-      </section>
-
-      <!-- Tab 6: Comparison -->
-      <section id="tab-compare" class="tab-panel hidden">
-        <div class="card">
-          <h2>Signature Scheme Comparison</h2>
-          <div id="compare-content"></div>
-          <h3>Signing Speed (this session)</h3>
-          <div id="speed-chart"></div>
-        </div>
-      </section>
-
-      <footer>
+      <footer role="contentinfo">
         <p>
           <a href="https://csrc.nist.gov/pubs/fips/205/final" target="_blank" rel="noopener">NIST FIPS 205</a> ·
           <a href="https://sphincs.org" target="_blank" rel="noopener">sphincs.org</a> ·
