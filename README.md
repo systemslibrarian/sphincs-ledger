@@ -1,10 +1,10 @@
-# sphincs-ledger
+# crypto-lab-sphincs-ledger
 
 **SLH-DSA (SPHINCS+)** — Browser-based cryptographic demo showcasing hash-based digital signatures standardized as [NIST FIPS 205](https://csrc.nist.gov/pubs/fips/205/final).
 
 Part of the [crypto-compare](https://github.com/systemslibrarian/crypto-compare) portfolio.
 
-**[Live Demo →](https://systemslibrarian.github.io/sphincs-ledger/)**
+**[Live Demo →](https://systemslibrarian.github.io/crypto-lab-sphincs-ledger/)**
 
 ## Post-Quantum Signatures
 
