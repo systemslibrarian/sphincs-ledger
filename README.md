@@ -4,6 +4,8 @@
 
 Part of the [crypto-compare](https://github.com/systemslibrarian/crypto-compare) portfolio.
 
+**[Live Demo →](https://systemslibrarian.github.io/sphincs-ledger/)**
+
 ## Post-Quantum Signatures
 
 | Field | Value |

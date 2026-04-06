@@ -4,6 +4,8 @@ Browser-based cryptographic demo for **SLH-DSA (SPHINCS+)** — the hash-based s
 
 Part of the [crypto-compare](https://github.com/systemslibrarian/crypto-compare) portfolio.
 
+**[Live Demo →](https://systemslibrarian.github.io/sphincs-ledger/)**
+
 ## What This Demo Shows
 
 1. **Hash-only security** — SPHINCS+ security reduces entirely to SHA-256 collision resistance. No algebraic assumptions (factoring, discrete log, lattice problems).
