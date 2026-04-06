@@ -2,12 +2,169 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>sphincs-ledger</title>
+    <title>SLH-DSA (SPHINCS+) — NIST FIPS 205 Demo</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔏</text></svg>">
   </head>
   <body>
-    <div id="app"></div>
+    <div id="app">
+      <header>
+        <h1>SLH-DSA (SPHINCS+)</h1>
+        <p class="subtitle">NIST FIPS 205 — Hash-Based Digital Signatures</p>
+        <p class="tagline">Security reduces entirely to SHA-256 collision resistance. No algebraic assumptions.</p>
+      </header>
+
+      <nav class="tabs" role="tablist">
+        <button class="tab active" data-tab="sign" role="tab" aria-selected="true">Sign &amp; Verify</button>
+        <button class="tab" data-tab="tree" role="tab">Hash Tree</button>
+        <button class="tab" data-tab="wots" role="tab">WOTS+ Chains</button>
+        <button class="tab" data-tab="ledger" role="tab">Ledger</button>
+        <button class="tab" data-tab="security" role="tab">Security Basis</button>
+        <button class="tab" data-tab="compare" role="tab">vs RSA / Dilithium</button>
+      </nav>
+
+      <!-- Tab 1: Sign & Verify -->
+      <section id="tab-sign" class="tab-panel active">
+        <div class="panel-row">
+          <div class="panel card">
+            <h2>Generate &amp; Sign</h2>
+            <label for="param-select">Parameter set:</label>
+            <select id="param-select">
+              <option value="sha2-128f" selected>SLH-DSA-SHA2-128f (fast, 128-bit)</option>
+              <option value="sha2-128s">SLH-DSA-SHA2-128s (small, 128-bit)</option>
+              <option value="sha2-256f">SLH-DSA-SHA2-256f (fast, 256-bit)</option>
+              <option value="sha2-256s">SLH-DSA-SHA2-256s (small, 256-bit)</option>
+            </select>
+
+            <div id="param-info" class="info-card"></div>
+
+            <label for="message-input">Message to sign:</label>
+            <textarea id="message-input" rows="3" placeholder="Enter a message to sign...">Hello, post-quantum world!</textarea>
+
+            <button id="btn-generate" class="btn-primary">Generate Keypair &amp; Sign</button>
+            <div id="sign-spinner" class="spinner hidden">
+              <div class="spinner-dot"></div>
+              <span>Signing — this is expected for conservative parameter sets...</span>
+            </div>
+            <div id="sign-output" class="output hidden"></div>
+          </div>
+
+          <div class="panel card">
+            <h2>Verify</h2>
+            <p class="muted">After signing, verify the signature to confirm authenticity.</p>
+            <button id="btn-verify" class="btn-secondary" disabled>Verify Signature</button>
+            <div id="verify-output" class="output hidden"></div>
+
+            <h3>Tamper Test</h3>
+            <p class="muted">Flip a single byte to see verification fail.</p>
+            <button id="btn-tamper-sig" class="btn-danger" disabled>Flip Byte in Signature</button>
+            <button id="btn-tamper-msg" class="btn-danger" disabled>Flip Byte in Message</button>
+            <div id="tamper-output" class="output hidden"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Tab 2: Hash Tree -->
+      <section id="tab-tree" class="tab-panel hidden">
+        <div class="card">
+          <h2>SHA-256 Merkle Tree</h2>
+          <p class="muted">A real SHA-256 Merkle tree computed in your browser. Click a leaf to highlight its authentication path.</p>
+          <div class="controls-row">
+            <label for="tree-leaves">Number of leaves:</label>
+            <select id="tree-leaves">
+              <option value="4">4 leaves (2 levels)</option>
+              <option value="8" selected>8 leaves (3 levels)</option>
+              <option value="16">16 leaves (4 levels)</option>
+            </select>
+            <button id="btn-build-tree" class="btn-primary">Build Tree</button>
+          </div>
+          <div id="tree-container"></div>
+          <div class="controls-row">
+            <label for="leaf-select">Select leaf to verify:</label>
+            <select id="leaf-select"></select>
+            <button id="btn-verify-leaf" class="btn-secondary" disabled>Verify Leaf</button>
+          </div>
+          <div id="tree-verify-output" class="output hidden"></div>
+        </div>
+      </section>
+
+      <!-- Tab 3: WOTS+ Chains -->
+      <section id="tab-wots" class="tab-panel hidden">
+        <div class="card">
+          <h2>WOTS+ One-Time Signature Chains</h2>
+          <p class="muted"><strong>Illustrative demonstration</strong> — shows the hash-chain concept underlying WOTS+ (FIPS 205, Section 4). Not a production implementation.</p>
+          <button id="btn-gen-wots" class="btn-primary">Generate WOTS+ Key (4 chains, w=16)</button>
+          <div id="wots-chains"></div>
+          <div class="controls-row" id="wots-sign-controls" style="display:none">
+            <label for="wots-nibble">Message nibble (0-15):</label>
+            <input id="wots-nibble" type="number" min="0" max="15" value="5" />
+            <label for="wots-chain-idx">Chain index:</label>
+            <input id="wots-chain-idx" type="number" min="0" max="3" value="0" />
+            <button id="btn-wots-sign" class="btn-secondary">Sign (reveal chain point)</button>
+            <button id="btn-wots-verify" class="btn-secondary" disabled>Verify</button>
+          </div>
+          <div id="wots-reuse-warning" class="warning hidden"></div>
+          <div id="wots-output" class="output hidden"></div>
+        </div>
+      </section>
+
+      <!-- Tab 4: Ledger -->
+      <section id="tab-ledger" class="tab-panel hidden">
+        <div class="card">
+          <h2>Signed Ledger</h2>
+          <p class="muted">Append-only ledger of SPHINCS+ signed entries. Each entry uses a fresh keypair — no shared keys or PKI required.</p>
+          <div class="controls-row">
+            <input id="ledger-author" type="text" placeholder="Author name" value="Alice" />
+            <input id="ledger-message" type="text" placeholder="Ledger message" value="Transfer 10 tokens to Bob" style="flex:2" />
+            <select id="ledger-param">
+              <option value="sha2-128f" selected>128f</option>
+              <option value="sha2-128s">128s</option>
+              <option value="sha2-256f">256f</option>
+              <option value="sha2-256s">256s</option>
+            </select>
+            <button id="btn-ledger-add" class="btn-primary">Add Entry</button>
+          </div>
+          <div id="ledger-spinner" class="spinner hidden">
+            <div class="spinner-dot"></div>
+            <span>Generating keypair and signing...</span>
+          </div>
+          <div class="controls-row">
+            <button id="btn-ledger-verify" class="btn-secondary">Verify All</button>
+            <button id="btn-ledger-tamper" class="btn-danger" disabled>Tamper Latest Entry</button>
+            <button id="btn-ledger-clear" class="btn-danger">Clear Ledger</button>
+          </div>
+          <div id="ledger-tamper-explanation" class="warning hidden"></div>
+          <div id="ledger-entries"></div>
+        </div>
+      </section>
+
+      <!-- Tab 5: Security Basis -->
+      <section id="tab-security" class="tab-panel hidden">
+        <div class="card">
+          <h2>Security Basis: Hash-Only Assumption</h2>
+          <div id="security-content"></div>
+        </div>
+      </section>
+
+      <!-- Tab 6: Comparison -->
+      <section id="tab-compare" class="tab-panel hidden">
+        <div class="card">
+          <h2>Signature Scheme Comparison</h2>
+          <div id="compare-content"></div>
+          <h3>Signing Speed (this session)</h3>
+          <div id="speed-chart"></div>
+        </div>
+      </section>
+
+      <footer>
+        <p>
+          <a href="https://csrc.nist.gov/pubs/fips/205/final" target="_blank" rel="noopener">NIST FIPS 205</a> ·
+          <a href="https://sphincs.org" target="_blank" rel="noopener">sphincs.org</a> ·
+          <a href="https://github.com/systemslibrarian/crypto-compare" target="_blank" rel="noopener">crypto-compare</a>
+        </p>
+        <p class="muted">Built with <a href="https://www.npmjs.com/package/@noble/post-quantum" target="_blank" rel="noopener">@noble/post-quantum</a> — runs entirely in your browser.</p>
+      </footer>
+    </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
