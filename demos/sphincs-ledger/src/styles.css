@@ -267,6 +267,13 @@ button:disabled {
 }
 .btn-danger:hover:not(:disabled) { background: #5c1a1a; }
 
+[data-theme='light'] .btn-danger {
+  background: #fee2e2;
+  color: var(--danger);
+  border-color: #fca5a5;
+}
+[data-theme='light'] .btn-danger:hover:not(:disabled) { background: #fecaca; }
+
 /* Controls row */
 .controls-row {
   display: flex;
@@ -326,6 +333,9 @@ button:disabled {
 .badge-valid { background: #052e16; color: #86efac; }
 .badge-invalid { background: #3c1111; color: #fca5a5; }
 
+[data-theme='light'] .badge-valid { background: #dcfce7; color: var(--success); }
+[data-theme='light'] .badge-invalid { background: #fee2e2; color: var(--danger); }
+
 /* Spinner */
 .spinner {
   display: flex;
@@ -361,6 +371,12 @@ button:disabled {
   margin: 12px 0;
   font-size: 0.85rem;
   line-height: 1.5;
+}
+
+[data-theme='light'] .warning {
+  background: #fefce8;
+  border-color: #f59e0b;
+  color: #92400e;
 }
 
 .warning.hidden { display: none; }
@@ -404,6 +420,11 @@ tr:hover td { background: rgba(99, 102, 241, 0.05); }
 .ledger-entry.invalid {
   border-color: #7f1d1d;
   background: #1c0f0f;
+}
+
+[data-theme='light'] .ledger-entry.invalid {
+  border-color: #fca5a5;
+  background: #fee2e2;
 }
 
 .ledger-entry .entry-header {

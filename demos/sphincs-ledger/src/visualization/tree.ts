@@ -53,6 +53,8 @@ export function renderMerkleTree(
   svg.style.display = 'block';
   svg.style.margin = '0 auto';
 
+  const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+
   const positions: NodePosition[] = [];
   collectPositions(root, width / 2, 40, width / 4, positions);
 
@@ -69,7 +71,7 @@ export function renderMerkleTree(
       line.setAttribute('x2', String(leftPos.x));
       line.setAttribute('y2', String(leftPos.y));
       const bothHighlighted = highlightSet.has(pos.node.hash) && highlightSet.has(pos.node.left.hash);
-      line.setAttribute('stroke', bothHighlighted ? '#f59e0b' : '#444');
+      line.setAttribute('stroke', bothHighlighted ? '#f59e0b' : (isLight ? '#94a3b8' : '#444'));
       line.setAttribute('stroke-width', bothHighlighted ? '3' : '1.5');
       svg.appendChild(line);
     }
@@ -81,7 +83,7 @@ export function renderMerkleTree(
       line.setAttribute('x2', String(rightPos.x));
       line.setAttribute('y2', String(rightPos.y));
       const bothHighlighted = highlightSet.has(pos.node.hash) && highlightSet.has(pos.node.right.hash);
-      line.setAttribute('stroke', bothHighlighted ? '#f59e0b' : '#444');
+      line.setAttribute('stroke', bothHighlighted ? '#f59e0b' : (isLight ? '#94a3b8' : '#444'));
       line.setAttribute('stroke-width', bothHighlighted ? '3' : '1.5');
       svg.appendChild(line);
     }
@@ -99,14 +101,14 @@ export function renderMerkleTree(
     circle.setAttribute('cy', String(pos.y));
     circle.setAttribute('r', String(NODE_RADIUS));
     circle.setAttribute('fill', isHighlighted ? '#f59e0b' : (pos.node.isLeaf ? '#3b82f6' : '#6366f1'));
-    circle.setAttribute('stroke', '#1e1e2e');
+    circle.setAttribute('stroke', isLight ? '#e2e8f0' : '#1e1e2e');
     circle.setAttribute('stroke-width', '2');
 
     const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
     text.setAttribute('x', String(pos.x));
     text.setAttribute('y', String(pos.y + 4));
     text.setAttribute('text-anchor', 'middle');
-    text.setAttribute('fill', '#fff');
+    text.setAttribute('fill', isHighlighted ? '#000' : '#fff');
     text.setAttribute('font-size', '9');
     text.setAttribute('font-family', 'monospace');
     text.textContent = pos.node.hash.substring(0, 8);
