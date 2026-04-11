@@ -17,6 +17,23 @@
   --focus-ring: 0 0 0 3px rgba(99, 102, 241, 0.5);
 }
 
+[data-theme='light'] {
+  --bg: #f8fafc;
+  --surface: #ffffff;
+  --surface2: #e2e8f0;
+  --border: #cbd5e1;
+  --text: #0f172a;
+  --text-muted: #475569;
+  --primary: #4338ca;
+  --primary-hover: #3730a3;
+  --success: #15803d;
+  --danger: #b91c1c;
+  --warning: #b45309;
+  --amber: #b45309;
+  --info: #1d4ed8;
+  --focus-ring: 0 0 0 3px rgba(67, 56, 202, 0.25);
+}
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 /* ─── Skip link (ADA) ─── */
@@ -89,8 +106,31 @@ body {
 }
 
 header {
+  position: relative;
   text-align: center;
   padding: 30px 0 20px;
+}
+
+.theme-toggle {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 2.6rem;
+  height: 2.6rem;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: var(--surface2);
+  color: var(--text);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.theme-toggle:hover:not(:disabled) {
+  background: var(--border);
 }
 
 header h1 {
@@ -464,6 +504,8 @@ a { color: var(--primary); text-decoration: none; }
 a:hover { text-decoration: underline; }
 
 .muted { color: var(--text-muted); font-size: 0.85rem; }
+.text-danger { color: var(--danger); }
+.text-success { color: var(--success); }
 
 h2 { margin-bottom: 8px; font-size: 1.2rem; }
 h3 { margin: 16px 0 8px; font-size: 1rem; }
@@ -505,6 +547,11 @@ fieldset {
 
 /* ─── Mobile breakpoints ─── */
 @media (max-width: 640px) {
+  .theme-toggle {
+    top: 2px;
+    right: 0;
+  }
+
   header h1 { font-size: 1.5rem; }
   .subtitle { font-size: 0.85rem; }
   .tagline { font-size: 0.78rem; }

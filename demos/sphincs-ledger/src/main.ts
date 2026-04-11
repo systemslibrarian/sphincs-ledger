@@ -21,6 +21,43 @@ import {
 import { renderWotsChain } from './visualization/wots-chain';
 import { Ledger } from './ledger/ledger';
 
+type ThemeMode = 'dark' | 'light';
+
+const documentRoot = document.documentElement;
+const themeToggle = document.getElementById('theme-toggle') as HTMLButtonElement | null;
+const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+
+function getCurrentTheme(): ThemeMode {
+  return documentRoot.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+}
+
+function syncThemeToggle(theme: ThemeMode) {
+  if (themeToggle) {
+    themeToggle.textContent = theme === 'dark' ? '🌙' : '☀️';
+    themeToggle.setAttribute('aria-label', theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
+  }
+
+  const background = getComputedStyle(documentRoot).getPropertyValue('--bg').trim();
+  if (themeColorMeta && background) {
+    themeColorMeta.setAttribute('content', background);
+  }
+}
+
+function setTheme(theme: ThemeMode) {
+  documentRoot.setAttribute('data-theme', theme);
+  localStorage.setItem('theme', theme);
+  syncThemeToggle(theme);
+}
+
+if (!documentRoot.getAttribute('data-theme')) {
+  documentRoot.setAttribute('data-theme', 'dark');
+}
+syncThemeToggle(getCurrentTheme());
+
+themeToggle?.addEventListener('click', () => {
+  setTheme(getCurrentTheme() === 'dark' ? 'light' : 'dark');
+});
+
 // ─── Speed tracking ───
 const speedRecords: Record<string, number[]> = {};
 
@@ -141,7 +178,7 @@ btnGenerate.addEventListener('click', async () => {
       `<strong>Keygen:</strong> ${tKeygen.toFixed(1)} ms\n` +
       `<strong>Signing:</strong> ${tSign.toFixed(1)} ms\n\n` +
       `<strong>Public key (${keyPair.publicKey.length} B):</strong>\n${bytesToHex(keyPair.publicKey).substring(0, 64)}…\n\n` +
-      `<strong>Private key (${keyPair.privateKey.length} B):</strong> <span style="color:#fca5a5">[never transmitted]</span>\n${bytesToHex(keyPair.privateKey).substring(0, 64)}…\n\n` +
+      `<strong>Private key (${keyPair.privateKey.length} B):</strong> <span class="text-danger">[never transmitted]</span>\n${bytesToHex(keyPair.privateKey).substring(0, 64)}…\n\n` +
       `<strong>Signature (${sig.length.toLocaleString()} B):</strong>\n${bytesToHex(sig).substring(0, 80)}…`;
     signOutput.classList.remove('hidden');
 
@@ -152,7 +189,7 @@ btnGenerate.addEventListener('click', async () => {
     tamperOutput.classList.add('hidden');
   } catch (e: unknown) {
     const msg2 = e instanceof Error ? e.message : String(e);
-    signOutput.innerHTML = `<span style="color:#fca5a5">Error: ${msg2}</span>`;
+    signOutput.innerHTML = `<span class="text-danger">Error: ${msg2}</span>`;
     signOutput.classList.remove('hidden');
   } finally {
     signSpinner.classList.add('hidden');
@@ -276,7 +313,8 @@ btnGenWots.addEventListener('click', async () => {
     const div = document.createElement('div');
     div.id = `wots-chain-${i}`;
     const label = document.createElement('div');
-    label.style.cssText = 'font-size:0.8rem; color:#94a3b8; margin-top:8px;';
+    label.className = 'muted';
+    label.style.marginTop = '8px';
     label.textContent = `Chain ${i}`;
     wotsChainContainer.appendChild(label);
     wotsChainContainer.appendChild(div);
@@ -438,10 +476,10 @@ document.getElementById('security-content')!.innerHTML = `
         <tr><th>Scheme</th><th>Assumption</th><th>Quantum Attack</th><th>Status</th></tr>
       </thead>
       <tbody>
-        <tr><td>RSA</td><td>Integer factoring</td><td>Shor's algorithm</td><td style="color:#fca5a5">Broken</td></tr>
-        <tr><td>ECDSA / Ed25519</td><td>Elliptic curve DLP</td><td>Shor's algorithm</td><td style="color:#fca5a5">Broken</td></tr>
-        <tr><td>ML-DSA (Dilithium)</td><td>Module-LWE (lattice)</td><td>No known efficient attack</td><td style="color:#86efac">Survives</td></tr>
-        <tr><td>SLH-DSA (SPHINCS+)</td><td>Hash function only</td><td>Grover reduces to 128-bit</td><td style="color:#86efac">Survives</td></tr>
+        <tr><td>RSA</td><td>Integer factoring</td><td>Shor's algorithm</td><td class="text-danger">Broken</td></tr>
+        <tr><td>ECDSA / Ed25519</td><td>Elliptic curve DLP</td><td>Shor's algorithm</td><td class="text-danger">Broken</td></tr>
+        <tr><td>ML-DSA (Dilithium)</td><td>Module-LWE (lattice)</td><td>No known efficient attack</td><td class="text-success">Survives</td></tr>
+        <tr><td>SLH-DSA (SPHINCS+)</td><td>Hash function only</td><td>Grover reduces to 128-bit</td><td class="text-success">Survives</td></tr>
       </tbody>
     </table></div>
   </div>
@@ -475,11 +513,11 @@ document.getElementById('security-content')!.innerHTML = `
         <tr><th>Use Case</th><th>Recommended?</th><th>Rationale</th></tr>
       </thead>
       <tbody>
-        <tr><td>Long-lived archives</td><td style="color:#86efac">Yes</td><td>Most conservative PQC assumption; signatures remain valid for decades</td></tr>
-        <tr><td>Legal documents</td><td style="color:#86efac">Yes</td><td>Minimal attack surface; hash-only foundation is well-understood</td></tr>
-        <tr><td>Software signing (offline)</td><td style="color:#86efac">Yes</td><td>Large signatures acceptable; signing speed less critical</td></tr>
-        <tr><td>High-frequency TLS handshakes</td><td style="color:#fca5a5">No</td><td>Large signatures (7–50 KB) add latency; ML-DSA preferred</td></tr>
-        <tr><td>Bandwidth-constrained IoT</td><td style="color:#fca5a5">No</td><td>Signature sizes too large for constrained links</td></tr>
+        <tr><td>Long-lived archives</td><td class="text-success">Yes</td><td>Most conservative PQC assumption; signatures remain valid for decades</td></tr>
+        <tr><td>Legal documents</td><td class="text-success">Yes</td><td>Minimal attack surface; hash-only foundation is well-understood</td></tr>
+        <tr><td>Software signing (offline)</td><td class="text-success">Yes</td><td>Large signatures acceptable; signing speed less critical</td></tr>
+        <tr><td>High-frequency TLS handshakes</td><td class="text-danger">No</td><td>Large signatures (7–50 KB) add latency; ML-DSA preferred</td></tr>
+        <tr><td>Bandwidth-constrained IoT</td><td class="text-danger">No</td><td>Signature sizes too large for constrained links</td></tr>
       </tbody>
     </table></div>
   </div>
@@ -498,13 +536,13 @@ document.getElementById('compare-content')!.innerHTML = `
       </tr>
     </thead>
     <tbody>
-      <tr><td>RSA-2048</td><td>256 B</td><td>256 B</td><td style="color:#fca5a5">No</td><td>Factoring</td></tr>
-      <tr><td>Ed25519</td><td>32 B</td><td>64 B</td><td style="color:#fca5a5">No</td><td>ECDLP</td></tr>
-      <tr><td>ML-DSA-44</td><td>1,312 B</td><td>2,420 B</td><td style="color:#86efac">Yes</td><td>LWE (lattice)</td></tr>
-      <tr><td>SLH-DSA-128s</td><td>32 B</td><td>7,856 B</td><td style="color:#86efac">Yes</td><td>Hash only</td></tr>
-      <tr><td>SLH-DSA-128f</td><td>32 B</td><td>17,088 B</td><td style="color:#86efac">Yes</td><td>Hash only</td></tr>
-      <tr><td>SLH-DSA-256s</td><td>64 B</td><td>29,792 B</td><td style="color:#86efac">Yes</td><td>Hash only</td></tr>
-      <tr><td>SLH-DSA-256f</td><td>64 B</td><td>49,856 B</td><td style="color:#86efac">Yes</td><td>Hash only</td></tr>
+      <tr><td>RSA-2048</td><td>256 B</td><td>256 B</td><td class="text-danger">No</td><td>Factoring</td></tr>
+      <tr><td>Ed25519</td><td>32 B</td><td>64 B</td><td class="text-danger">No</td><td>ECDLP</td></tr>
+      <tr><td>ML-DSA-44</td><td>1,312 B</td><td>2,420 B</td><td class="text-success">Yes</td><td>LWE (lattice)</td></tr>
+      <tr><td>SLH-DSA-128s</td><td>32 B</td><td>7,856 B</td><td class="text-success">Yes</td><td>Hash only</td></tr>
+      <tr><td>SLH-DSA-128f</td><td>32 B</td><td>17,088 B</td><td class="text-success">Yes</td><td>Hash only</td></tr>
+      <tr><td>SLH-DSA-256s</td><td>64 B</td><td>29,792 B</td><td class="text-success">Yes</td><td>Hash only</td></tr>
+      <tr><td>SLH-DSA-256f</td><td>64 B</td><td>49,856 B</td><td class="text-success">Yes</td><td>Hash only</td></tr>
     </tbody>
   </table></div>
 `;

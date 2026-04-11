@@ -1,38 +1,35 @@
 # crypto-lab-sphincs-ledger
 
-**SLH-DSA (SPHINCS+)** — Browser-based cryptographic demo showcasing hash-based digital signatures standardized as [NIST FIPS 205](https://csrc.nist.gov/pubs/fips/205/final).
+## What It Is
 
-Part of the [crypto-compare](https://github.com/systemslibrarian/crypto-compare) portfolio.
+This project is a browser demo of SLH-DSA (SPHINCS+), with supporting SHA-256 Merkle tree and WOTS+ visualizations that make the signing flow easier to inspect. SLH-DSA solves the digital-signature problem: a signer produces a public verifiable proof that a message came from the holder of the private key and was not modified. The scheme is an asymmetric, hash-based, post-quantum signature system standardized in NIST FIPS 205. In this demo, the security story is presented honestly: the production signing path is SLH-DSA, while the Merkle tree and WOTS+ tabs are educational views of the primitives beneath it.
 
-**[Live Demo →](https://systemslibrarian.github.io/crypto-lab-sphincs-ledger/)**
+## When to Use It
 
-## Post-Quantum Signatures
+- Use it for long-lived software releases or archive signatures when conservative post-quantum assurances matter more than compact signatures.
+- Use it for offline or low-frequency signing workflows because SLH-DSA trades very large signatures for a hash-only security foundation.
+- Use it for teaching or internal reviews when you need to show how SHA-256 Merkle trees, WOTS+, and SLH-DSA fit together in one place.
+- Do not use it for bandwidth-sensitive or latency-sensitive protocols because the signature sizes in the implemented parameter sets are much larger than RSA, Ed25519, or ML-DSA.
 
-| Field | Value |
-|---|---|
-| Scheme | SLH-DSA (SPHINCS+) |
-| Standard | NIST FIPS 205 |
-| Hash function | SHA-256 / SHA-512 |
-| Security assumption | Hash function collision resistance only |
-| Quantum resistance | Yes — Grover reduces to 128-bit minimum |
-| Signature sizes | 7,856 – 49,856 bytes depending on parameter set |
-| Authors | Bernstein, Hülsing, Kölbl, Niederhagen, Rijneveld, Schwabe |
-| Year standardized | 2024 |
-| Key property | No algebraic structure — most conservative PQC assumption |
+## Live Demo
 
-## Quick Start
+Live demo: [https://systemslibrarian.github.io/crypto-lab-sphincs-ledger/](https://systemslibrarian.github.io/crypto-lab-sphincs-ledger/)
+
+The demo lets you generate keys, sign messages, verify signatures, inspect a SHA-256 Merkle tree authentication path, experiment with a WOTS+ chain reveal, and append signed entries to a browser-side ledger. The main controls are the Parameter set selector, Message to sign textarea, Number of leaves selector, Message nibble input, and Chain index input.
+
+## How to Run Locally
 
 ```bash
-cd demos/sphincs-ledger
+git clone https://github.com/systemslibrarian/crypto-lab-sphincs-ledger.git
+cd crypto-lab-sphincs-ledger/demos/sphincs-ledger
 npm install
 npm run dev
 ```
 
-## Cross-References
+No environment variables are required.
 
-- **[ratchet-wire](https://github.com/systemslibrarian/crypto-compare):** SPHINCS+ could sign the initial X3DH pre-keys for a fully post-quantum messaging handshake.
-- **[quantum-vault-kpqc](https://github.com/systemslibrarian/crypto-compare):** Korean KpqC (HAETAE) is a lattice-based alternative occupying a similar role to ML-DSA, while SPHINCS+ occupies a distinct hash-only niche.
+## Part of the Crypto-Lab Suite
 
-## Demo Details
+This demo is one part of the broader Crypto-Lab suite at [https://systemslibrarian.github.io/crypto-lab/](https://systemslibrarian.github.io/crypto-lab/).
 
-See [demos/sphincs-ledger/README.md](demos/sphincs-ledger/README.md) for full documentation.
+Whether you eat or drink or whatever you do, do it all for the glory of God. — 1 Corinthians 10:31

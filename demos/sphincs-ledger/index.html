@@ -6,12 +6,19 @@
     <meta name="description" content="Interactive browser demo of SLH-DSA (SPHINCS+) hash-based digital signatures — NIST FIPS 205. Explore Merkle trees, WOTS+ chains, and post-quantum signing." />
     <meta name="theme-color" content="#0f0f17" />
     <title>SLH-DSA (SPHINCS+) — NIST FIPS 205 Demo</title>
+    <script>
+      (function () {
+        const saved = localStorage.getItem('theme');
+        document.documentElement.setAttribute('data-theme', saved ?? 'dark');
+      })();
+    </script>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔏</text></svg>">
   </head>
   <body>
     <a href="#main-content" class="skip-link">Skip to main content</a>
     <div id="app">
       <header role="banner">
+        <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Switch to light mode">🌙</button>
         <h1>SLH-DSA (SPHINCS+)</h1>
         <p class="subtitle">NIST FIPS 205 — Hash-Based Digital Signatures</p>
         <p class="tagline">Security reduces entirely to SHA-256 collision resistance. No algebraic assumptions.</p>
@@ -166,15 +173,10 @@
         </section>
       </main>
 
-      <footer role="contentinfo">
-        <p>
-          <a href="https://csrc.nist.gov/pubs/fips/205/final" target="_blank" rel="noopener">NIST FIPS 205</a> ·
-          <a href="https://sphincs.org" target="_blank" rel="noopener">sphincs.org</a> ·
-          <a href="https://github.com/systemslibrarian/crypto-compare" target="_blank" rel="noopener">crypto-compare</a>
-        </p>
-        <p class="muted">Built with <a href="https://www.npmjs.com/package/@noble/post-quantum" target="_blank" rel="noopener">@noble/post-quantum</a> — runs entirely in your browser.</p>
-      </footer>
     </div>
+    <footer role="contentinfo" style="text-align:center; padding: 1.5rem; font-size: 0.85rem; opacity: 0.7; margin-top: 2rem;">
+      Whether you eat or drink or whatever you do, do it all for the glory of God. — 1 Corinthians 10:31
+    </footer>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
